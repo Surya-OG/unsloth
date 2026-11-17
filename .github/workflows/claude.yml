@@ -23,11 +23,17 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
       actions: read # Required for Claude to read CI results on PRs
+    env:
+      # The action requires anthropic_api_key (below), so the same OpenRouter key is also sent as
+      # ANTHROPIC_AUTH_TOKEN, which Claude Code sends as a Bearer token.
+      ANTHROPIC_BASE_URL: https://openrouter.ai/api
+      ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+      ANTHROPIC_DEFAULT_SONNET_MODEL: anthropic/claude-sonnet-5.5
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: anthropic/claude-haiku-5.5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -39,11 +45,9 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          # This is an optional setting that allows Claude to read CI results on PRs
-          additional_permissions: |
-            actions: read
+          anthropic_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          # Uses the workflow's own token, so the Claude GitHub App does not need to be installed.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
@@ -51,4 +55,4 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
+          claude_args: '--model anthropic/claude-sonnet-5.5'
