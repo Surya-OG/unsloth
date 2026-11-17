@@ -32,8 +32,9 @@ jobs:
       # ANTHROPIC_AUTH_TOKEN, which Claude Code sends as a Bearer token.
       ANTHROPIC_BASE_URL: https://openrouter.ai/api
       ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
-      ANTHROPIC_DEFAULT_SONNET_MODEL: anthropic/claude-sonnet-5.5
-      ANTHROPIC_DEFAULT_HAIKU_MODEL: anthropic/claude-haiku-5.5
+      # OpenRouter aliases that resolve to the latest Claude Sonnet and Haiku models.
+      ANTHROPIC_DEFAULT_SONNET_MODEL: "~anthropic/claude-sonnet-latest[1m]"
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: "~anthropic/claude-haiku-latest"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -55,4 +56,4 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          claude_args: '--model anthropic/claude-sonnet-5.5'
+          claude_args: '--model sonnet'
